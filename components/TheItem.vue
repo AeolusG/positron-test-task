@@ -1,7 +1,6 @@
 <template>
   <div class="card">
-    <slot name="image"></slot>
-    <img src="../assets/images/hood1.png" />
+    <img :src="getImageUrl" />
 
     <div class="card__content">
       <h3 class="card__content-title">Вытяжное устройство G2H</h3>
@@ -10,15 +9,22 @@
       </div>
       <div class="card__article">Артикул: G2H1065</div>
     </div>
+    <div>
+      <div class="card__btn-group">
+        <button
+          class="card__btn-group--minus"
+          @click="decreaseItems(itemsCount)"
+        ></button>
+        <div>{{ itemsCount }}</div>
+        <button
+          class="card__btn-group--plus"
+          @click="increaseItems(itemsCount)"
+        ></button>
+      </div>
 
-    <div class="card__btn-group">
-      <button @click="decreaseItems(itemsCount), countTotalPrice(itemsCount)">
-        -
-      </button>
-      <div>{{ itemsCount }}</div>
-      <button @click="increaseItems(itemsCount), countTotalPrice(itemsCount)">
-        +
-      </button>
+      <div class="card__price-per-item" v-show="showThePrice">
+        {{ makeLocaled }} ₽/шт.
+      </div>
     </div>
 
     <div class="card__price">{{ getPrice }}₽</div>
@@ -44,32 +50,44 @@ export default {
       type: Number,
       default: null,
     },
+    pricePerItem: {
+      type: Number,
+      default: null,
+    },
+    image: {
+      type: String,
+      default: null,
+    },
   },
   data() {
     return {
       itemsCount: 1,
-      totalPrice: null,
     };
   },
   methods: {
     increaseItems(count) {
       this.itemsCount++;
-      this.$emit('getItemsCount', count);
+      this.$emit('getIncreased', count);
     },
     decreaseItems(count) {
-      this.itemsCount--;
+      this.itemsCount = count <= 1 ? count : this.itemsCount - 1;
       this.$emit('getDecreased', count);
-    },
-    countTotalPrice(count) {
-      this.totalPrice = this.price * count;
-      this.$emit('countTotalPrice', count);
     },
   },
   computed: {
     getPrice() {
-      let currentPrice = this.price;
+      let currentPrice = this.price * this.itemsCount;
 
       return currentPrice.toLocaleString('ru-RU');
+    },
+    makeLocaled() {
+      return this.pricePerItem.toLocaleString('ru-RU');
+    },
+    showThePrice() {
+      return Boolean(this.itemsCount > 1);
+    },
+    getImageUrl() {
+      return new URL(`../assets/images/${this.image}`, import.meta.url);
     },
   },
 };
@@ -79,11 +97,11 @@ export default {
 @import '/home/olya/rabstol/тестовые задания/positron-test-task/assets/fonts/fonts.css';
 .card {
   display: flex;
-  width: 800px;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid rgba(196, 196, 196, 1);
   padding-bottom: 20px;
+  margin-bottom: 20px;
 }
 .card__content {
   width: 300px;
@@ -91,6 +109,8 @@ export default {
 .card__btn-group {
   display: flex;
   align-items: center;
+  position: relative;
+
   div {
     background: rgb(246, 248, 250);
     color: rgb(51, 55, 78);
@@ -109,6 +129,23 @@ export default {
     width: 34px;
     cursor: grab;
   }
+  .card__btn-group--minus {
+    background-image: url('../assets/images/minus.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  .card__btn-group--plus {
+    background-image: url('../assets/images/plus.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+}
+.card__price-per-item {
+  font-family: 'Roboto', serif;
+  font-size: 12px;
+  font-weight: 400;
+  position: absolute;
+  padding-left: 30px;
 }
 .card__description {
   font-family: 'Lato Regular', sans-serif;

@@ -3,8 +3,10 @@
     <img class="header__image" src="../assets/images/Vector.svg" alt="basket" />
     <div>
       <div class="header__content--description">Ваша корзина</div>
-      <div class="header__content--items-count">{{ itemsCount }} товара</div>
-      <div class="header__content--total-price">{{ itemsTotalPrice }} ₽</div>
+      <div class="header__content--items-count">
+        {{ itemsCount }} {{ getNoun }}
+      </div>
+      <div class="header__content--total-price">{{ makeLocaled }}₽</div>
     </div>
   </header>
 </template>
@@ -21,13 +23,33 @@ export default {
       default: null,
     },
   },
+  computed: {
+    getNoun() {
+      let n = Math.abs(this.itemsCount);
+      n %= 100;
+      if (n >= 5 && n <= 20) {
+        return 'товаров';
+      }
+      n %= 10;
+      if (n === 1) {
+        return 'товар';
+      }
+      if (n >= 2 && n <= 4) {
+        return 'товара';
+      }
+      return 'товаров';
+    },
+    makeLocaled() {
+      return this.itemsTotalPrice.toLocaleString('ru-RU');
+    },
+  },
 };
 </script>
 
 <style lang="scss" scoped>
 @import '/home/olya/rabstol/тестовые задания/positron-test-task/assets/fonts/fonts.css';
 .header {
-  width: 1280px;
+  margin: 30px 75px;
   display: flex;
   justify-content: flex-end;
 }
